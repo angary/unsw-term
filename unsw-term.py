@@ -66,7 +66,7 @@ def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> bool:
     return False
 
 
-def get_start_end_date(term_duration: str) -> tuple[dt, dt]:
+def get_start_end_date(term_duration: str) -> tuple:
     """
     Get the start and end days as datetime objects from the term duration string
     """
