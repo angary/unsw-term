@@ -2,11 +2,19 @@
 Totally not a tool I'm making because I didn't write down when I did things, so I need to figure out what week and term it was based off random dates for my statement of contribution.
 
 ## Usage
-Installing requirements
-```
+**Setup**
+```sh
+# Set up virtual environment
+python3 -m venv env
+
+# Activate virtual environment
+source env/bin/activate
+
+# Install requirements
 pip install -r requirements.txt
 ```
-Running:
+
+**Running**
 ```
 python3 unsw-term <DD/MM>
 ```
