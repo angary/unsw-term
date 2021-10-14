@@ -9,6 +9,7 @@ import bs4
 url = "https://student.unsw.edu.au/calendar"
 terms = ["Summer", "1", "2", "3", "4"]
 
+
 def main():
 
     # Check requirements
@@ -26,7 +27,7 @@ def main():
     soup = bs4.BeautifulSoup(page.content, "html.parser")
 
     # Extract the list of tables for each term
-    calendar_details = soup.find(id="node-1334")
+    calendar_details = soup.find(about="/calendar")
     term_tables = calendar_details.find_all("table", class_="table-striped")
 
     # Find the date
