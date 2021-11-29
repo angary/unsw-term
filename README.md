@@ -16,11 +16,11 @@ pip install -r requirements.txt
 
 **Running**
 ```
-python3 unsw-term <DD/MM>
+python3 unsw-term.py <DD/MM>
 ```
 **Example**:
 
-```python3 unsw-term 20/4```
+```python3 unsw-term.py 20/4```
 
 **Output**:
 > Tue | Week 10 | Term 1
