@@ -6,8 +6,8 @@ from datetime import datetime as dt
 import requests
 import bs4
 
-url = "https://student.unsw.edu.au/calendar"
-terms = ["Summer", "1", "2", "3", "4"]
+URL = "https://student.unsw.edu.au/calendar"
+TERMS = ["Summer", "1", "2", "3", "4"]
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
     date = dt(int(year), int(month), int(day))
 
     # Get the data from UNSW website
-    page = requests.get(url)
+    page = requests.get(URL)
     soup = bs4.BeautifulSoup(page.content, "html.parser")
 
     # Extract the list of tables for each term
@@ -52,6 +52,9 @@ def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> bool:
     # Get the starting date and end date
     start, end = get_start_end_date(term_duration)
     if within_duration(date, start, end, False, term):
+        week = ((date - start).days // 7) + 1
+        day_name = calendar.day_abbr[date.weekday()]
+        print(f"{day_name} | Week {week} | Term {TERMS[term]}")
         return True
     
     # If there is a term break
@@ -98,9 +101,9 @@ def within_duration(date: dt, start: dt, end: dt, is_break: bool, term: int) -> 
     week = ((date - start).days // 7) + 1
     day_name = calendar.day_abbr[date.weekday()]
     if is_break:
-        print(day_name, "| Week", week, "| Term", terms[term] + "-" + terms[term + 1], "Break")
+        print(f"{day_name} | Week {week} | Term {TERMS[term]}-{TERMS[term + 1]} Break")
     else:
-        print(day_name, "| Week", week, "| Term", terms[term])
+        print(f"{day_name} | Week {week} | Term {TERMS[term]}")
     return True
 
 
