@@ -20,7 +20,9 @@ python3 unsw-term.py <DD/MM>
 ```
 **Example**:
 
-```python3 unsw-term.py 20/4```
+```
+python3 unsw-term.py 20/4
+```
 
 **Output**:
 > Tue | Week 10 | Term 1

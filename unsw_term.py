@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import calendar
+import calendar as cal
 import sys
 from datetime import datetime as dt
 
@@ -11,100 +11,61 @@ TERMS = ["Summer", "1", "2", "3", "4"]
 
 
 def main():
-
-    # Check requirements
     if len(sys.argv) != 2:
         print("Usage: unsw-term.py <DD/MM>")
         sys.exit(1)
-    
-    # Extract the date
-    [day, month] = sys.argv[1].split('/')
-    year = dt.now().year
-    date = dt(int(year), int(month), int(day))
 
-    # Get the data from UNSW website
-    page = requests.get(URL)
-    soup = bs4.BeautifulSoup(page.content, "html.parser")
+    # Extract the date and get data from UNSW website
+    [day, month] = sys.argv[1].split('/')
+    date = dt(int(dt.now().year), int(month), int(day))
+    soup = bs4.BeautifulSoup(requests.get(URL).content, "html.parser")
 
     # Extract the list of tables for each term
     calendar_details = soup.find(about="/calendar")
     term_tables = calendar_details.find_all("table", class_="table-striped")
-
-    # Find the date
     for i, term_table in enumerate(term_tables):
-
-        # If we found the date, end the program
-        if within_term(date, i, term_table):
+        string = within_term(date, i, term_table)
+        if string:
+            print(string)
             return
-    
+
     # Else we did not find it
     print("Outside current term's calendar")
 
 
-def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> bool:
+def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> str:
     """
     Check if the date is within the term, or term break
-    If the date is inside the term, return True
+    If the date is inside the term, return the string to print out else an empty string
     """
     # Extract the string in the format "<date> <month> - <date> <month>"
     term_duration = term_table.find_all("tr")[1].find_all("td")[1].text
+    day = cal.day_abbr[date.weekday()]
 
-    # Get the starting date and end date
     start, end = get_start_end_date(term_duration)
-    if within_duration(date, start, end, False, term):
+    if start <= date <= end:
         week = ((date - start).days // 7) + 1
-        day_name = calendar.day_abbr[date.weekday()]
-        print(f"{day_name} | Week {week} | Term {TERMS[term]}")
-        return True
-    
+        return f"{day} | Week {week} | Term {TERMS[term]}"
+
     # If there is a term break
     if (term_table.find_all("tr")[-1].find_all("td")[0].text == "Term break"):
-
         term_break = term_table.find_all("tr")[-1].find_all("td")[1].text
-
-        # Get the starting date and end date of the break
         break_start, break_end = get_start_end_date(term_break)
-        if within_duration(date, break_start, break_end, True, term):
-            return True
-    
-    return False
+        if break_start <= date <= break_end:
+            week = ((date - break_start).days // 7) + 1
+            return f"{day} | Week {week} | Term {TERMS[term]}-{TERMS[term + 1]} Break"
+    return ""
 
 
-def get_start_end_date(term_duration: str) -> tuple:
+def get_start_end_date(term_duration: str) -> tuple[dt, dt]:
     """
     Get the start and end days as datetime objects from the term duration string
     """
     start, end = term_duration.split("-")
-    year = dt.now().year
-
-    # Get starting date
-    start_day = int(start.split()[0])
-    start_month = list(calendar.month_abbr).index(start.split()[1])
-    start_date = dt(year, start_month, start_day)
-
-    # Get the ending date
-    end_day = int(end.split()[0])
-    end_month = list(calendar.month_abbr).index(end.split()[1])
-    end_date = dt(year, end_month, end_day)
-    return (start_date, end_date)
-
-
-def within_duration(date: dt, start: dt, end: dt, is_break: bool, term: int) -> bool:
-    """
-    Check if the date is within the current duration
-    If it is, print out the date as what week of the term or break it is
-    and return True
-    """
-    if not start <= date <= end:
-        return False
-
-    week = ((date - start).days // 7) + 1
-    day_name = calendar.day_abbr[date.weekday()]
-    if is_break:
-        print(f"{day_name} | Week {week} | Term {TERMS[term]}-{TERMS[term + 1]} Break")
-    else:
-        print(f"{day_name} | Week {week} | Term {TERMS[term]}")
-    return True
+    def day(s: str) -> int: return int(s.split()[0])
+    def month(s: str) -> int: return list(cal.month_abbr).index(s.split()[1])
+    def to_dt(s: str) -> dt: return dt(dt.now().year, month(s), day(s))
+    return (to_dt(start), to_dt(end))
 
 
 if __name__ == "__main__":
