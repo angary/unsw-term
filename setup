@@ -9,7 +9,7 @@ bold_echo() {
     echo "${BW}$1${NC}"
 }
 
-# Setup
+# Setup up requirements and script execute permissions
 bold_echo "Setting up virtual environment"
 python3 -m venv env
 source env/bin/activate
@@ -20,7 +20,7 @@ pip3 install -r requirements.txt
 bold_echo "Adding execute permissions for script"
 chmod +x unsw_term
 
-
+# Add directory to path
 bold_echo "Adding to path"
 if ! [[ $PATH =~ $PWD ]] ;
 then
