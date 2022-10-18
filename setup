@@ -1,0 +1,46 @@
+#!bin/sh
+
+BW='\033[1;37m' # Bold white
+NC='\033[0m' # No colour
+EXPORT_COMMENT="# Add unsw term to path"
+EXPORT_COMMAND="export PATH=\$PATH:$(pwd)"
+
+bold_echo() {
+    echo "${BW}$1${NC}"
+}
+
+# Setup
+bold_echo "Setting up virtual environment"
+python3 -m venv env
+source env/bin/activate
+
+bold_echo "Installing requirements"
+pip3 install -r requirements.txt
+
+bold_echo "Adding execute permissions for script"
+chmod +x unsw_term
+
+
+bold_echo "Adding to path"
+if ! [[ $PATH =~ $PWD ]] ;
+then
+    export PATH=$PATH:${pwd}
+fi
+
+shells=(~/.bashrc ~/.zshrc)
+for shell in ${shells[@]};
+do
+    if ! grep -xq "$EXPORT_COMMAND" "$shell" ;
+    then
+        bold_echo "Adding export path to ${shell}"
+        echo $EXPORT_COMMENT >> $shell
+        echo $EXPORT_COMMAND >> $shell
+        echo >> $shell
+    fi
+done
+
+bold_echo "Complete!"
+
+# Unset variables
+unset BW NC EXPORT_COMMAND EXPORT_COMMENT
+unset -f bold_echo
