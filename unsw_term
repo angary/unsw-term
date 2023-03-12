@@ -23,12 +23,11 @@ class UNSWDate:
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: unsw-term.py <DD/MM>")
-        sys.exit(1)
-
+        date = dt.now()
+    else:
+        [day, month] = sys.argv[1].split('/')
+        date = dt(int(dt.now().year), int(month), int(day))
     # Extract the date and get data from UNSW website
-    [day, month] = sys.argv[1].split('/')
-    date = dt(int(dt.now().year), int(month), int(day))
     soup = bs4.BeautifulSoup(requests.get(URL).content, "html.parser")
 
     # Extract the list of tables for each term
