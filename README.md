@@ -17,7 +17,7 @@ It will install dependencies and add the script to your path so it can be run in
 **Running**
 
 ```sh
-unsw-term <DD/MM>
+unsw-term [DD/MM]
 ```
 
 **Example**:
@@ -28,3 +28,4 @@ Wed | Week 10 | Term 1
 ```
 
 **Note**: The year is assumed to be the current year it is run in.
+If no arguments are given, then it is assumed to be the current date.
