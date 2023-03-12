@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import calendar as cal
 import sys
+from dataclasses import dataclass
 from datetime import datetime as dt
 
 import requests
@@ -9,31 +10,37 @@ import bs4
 URL = "https://student.unsw.edu.au/calendar"
 TERMS = ["Summer", "1", "2", "3", "4"]
 
+@dataclass
+class UNSWDate:
+    day: int
+    week: int
+    term: int
+    is_break: bool
+
+    def __str__(self) -> str:
+        break_str = f"-{TERMS[self.term+1]} Break" if self.is_break else ""
+        return f"{self.day} | Week {self.week} | Term {TERMS[self.term]}{break_str}"
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: unsw-term.py <DD/MM>")
-        sys.exit(1)
-
+        date = dt.now()
+    else:
+        [day, month] = sys.argv[1].split('/')
+        date = dt(int(dt.now().year), int(month), int(day))
     # Extract the date and get data from UNSW website
-    [day, month] = sys.argv[1].split('/')
-    date = dt(int(dt.now().year), int(month), int(day))
     soup = bs4.BeautifulSoup(requests.get(URL).content, "html.parser")
 
     # Extract the list of tables for each term
     calendar_details = soup.find(about="/calendar")
     term_tables = calendar_details.find_all("table", class_="table-striped")
     for i, term_table in enumerate(term_tables):
-        string = within_term(date, i, term_table)
-        if string:
-            print(string)
-            return
-
-    # Else we did not find it
+        unsw_date = within_term(date, i, term_table)
+        if unsw_date:
+            return print(unsw_date)
     print("Outside current term's calendar")
 
 
-def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> str:
+def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> UNSWDate:
     """
     Check if the date is within the term, or term break
     If the date is inside the term, return the string to print out else an empty string
@@ -45,7 +52,7 @@ def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> str:
     start, end = get_start_end_date(term_duration)
     if start <= date <= end:
         week = ((date - start).days // 7) + 1
-        return f"{day} | Week {week} | Term {TERMS[term]}"
+        return UNSWDate(day, week, term, False)
 
     # If there is a term break
     if (term_table.find_all("tr")[-1].find_all("td")[0].text == "Term break"):
@@ -53,8 +60,8 @@ def within_term(date: dt, term: int, term_table: bs4.element.Tag) -> str:
         break_start, break_end = get_start_end_date(term_break)
         if break_start <= date <= break_end:
             week = ((date - break_start).days // 7) + 1
-            return f"{day} | Week {week} | Term {TERMS[term]}-{TERMS[term + 1]} Break"
-    return ""
+            return UNSWDate(day, week, term, True)
+    return None
 
 
 def get_start_end_date(term_duration: str) -> tuple[dt, dt]:
