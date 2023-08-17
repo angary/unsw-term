@@ -17,13 +17,13 @@ It will install dependencies and add the script to your path so it can be run in
 **Running**
 
 ```sh
-unsw-term [DD/MM]
+unsw_term [DD/MM]
 ```
 
 **Example**:
 
 ```sh
-$ unsw-term 20/4
+$ unsw_term 20/4
 Wed | Week 10 | Term 1
 ```
 
